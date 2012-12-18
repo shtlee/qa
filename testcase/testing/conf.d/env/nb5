@@ -1,0 +1,19 @@
+{
+    "id" : "nb5",
+    "type" : "null",
+
+    "hosts"     : {
+        "up"    :      "up.qbox.me",
+        "rs"    :      "rs.qbox.me",
+        "io"    :      "iovip.qbox.me"
+    },
+
+    "ips"       : {
+        "up_ip" :      "http://118.26.231.133",
+        "rs_ip" :      "http://118.26.231.133:82",
+        "io_ip" :      "http://118.26.231.133"
+    },
+
+    "access_key"    :      "4_odedBxmrAHiu4Y0Qp0HPG0NANCf6VAsAjWL_kO",
+    "secret_key"    :      "SrRuUVfDX6drVRvpyN8mv8Vcm9XnMZzlbDfvVfmE"
+}
