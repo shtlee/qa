@@ -100,28 +100,28 @@ func (s *Service) Fetch(url, saveAs string) error {
 }
 
 func (s *Service) Stat(entryURI string) (entry Entry, code int, err error) {
-	code, err = s.Conn.Call(&entry, s.host["rs"]+"/stat/"+EncodeURI(entryURI))
+	code, err = s.Conn.CallEx(&entry, s.ip["rs"]+"/stat/"+EncodeURI(entryURI), s.host["rs"])
 	return
 }
 
 func (s *Service) Delete(entryURI string) (code int, err error) {
-	return s.Conn.Call(nil, "http://"+s.host["rs"]+"/delete/"+EncodeURI(entryURI))
+	return s.Conn.CallEx(nil, s.ip["rs"]+"/delete/"+EncodeURI(entryURI), s.host["rs"])
 }
 
 func (s *Service) Mkbucket(bucketname string) (code int, err error) {
-	return s.Conn.Call(nil, s.host["rs"]+"/mkbucket/"+bucketname)
+	return s.Conn.CallEx(nil, s.ip["rs"]+"/mkbucket/"+bucketname, s.host["rs"])
 }
 
 func (s *Service) Drop(entryURI string) (code int, err error) {
-	return s.Conn.Call(nil, s.host["rs"]+"/drop/"+entryURI)
+	return s.Conn.CallEx(nil, s.ip["rs"]+"/drop/"+entryURI, s.host["rs"])
 }
 
 func (s *Service) Move(entryURISrc, entryURIDest string) (code int, err error) {
-	return s.Conn.Call(nil, s.host["rs"]+"/move/"+EncodeURI(entryURISrc)+"/"+EncodeURI(entryURIDest))
+	return s.Conn.CallEx(nil, s.ip["rs"]+"/move/"+EncodeURI(entryURISrc)+"/"+EncodeURI(entryURIDest), s.host["rs"])
 }
 
 func (s *Service) Copy(entryURISrc, entryURIDest string) (code int, err error) {
-	return s.Conn.Call(nil, s.host["rs"]+"/copy/"+EncodeURI(entryURISrc)+"/"+EncodeURI(entryURIDest))
+	return s.Conn.CallEx(nil, s.ip["rs"]+"/copy/"+EncodeURI(entryURISrc)+"/"+EncodeURI(entryURIDest), s.host["rs"])
 }
 
 func (s *Service) Publish(domain, table string) (code int, err error) {
@@ -129,7 +129,7 @@ func (s *Service) Publish(domain, table string) (code int, err error) {
 }
 
 func (s *Service) Unpublish(domain string) (code int, err error) {
-	return s.Conn.Call(nil, s.host["rs"]+"/unpublish/"+EncodeURI(domain))
+	return s.Conn.CallEx(nil, s.ip["rs"]+"/unpublish/"+EncodeURI(domain), s.host["rs"])
 }
 
 // -------------------Batcher to do -----------------------------------
