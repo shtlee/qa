@@ -8,6 +8,7 @@ import (
 	"qbox.me/shell/shutil/filepath"
 	"qbox.us/cc"
 	"qbox.us/cc/config"
+	"qbox.us/errors"
 	"qbox.us/log"
 	"runtime"
 )
@@ -46,11 +47,12 @@ func (p *Visitor) VisitFile(file string, fi os.FileInfo) {
 			log.Error("name err or duplicate: ", file, conf.Name, conf.Type)
 			os.Exit(-1)
 		}
-		caseEntry, ok := Cases[conf.Type]
+		fun, ok := Cases[conf.Type]
 		if !ok {
 			log.Error("no such type :", conf.Type, conf.Name)
 			os.Exit(1)
 		}
+		caseEntry := fun()
 		err := caseEntry.Init(file, p.Env, p.DataPath)
 		if err != nil {
 			log.Error("init err :", conf.Name, conf.Type, err)
@@ -95,7 +97,7 @@ func main() {
 			msg += info
 			msg += "\n"
 			if err != nil {
-				msg += fmt.Sprintf("!!!!!!!!!!mon case [%v] err!!![%v]\n", k, err)
+				msg += fmt.Sprintf("!!!!!!!!!!mon case [%v] err!!![%v]\n", k, errors.Detail(err))
 				errCount++
 			} else {
 				msg += fmt.Sprintf("[no err]%v done <<<\n", k)
