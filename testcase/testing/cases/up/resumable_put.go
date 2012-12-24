@@ -5,7 +5,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io"
-	"os"
 	"time"
 	"net/http"
 	"math/rand"
@@ -16,6 +15,7 @@ import (
 	"qbox.me/api"
 	"qbox.me/api/rs"
 	"qbox.me/api/up"
+	"qbox.me/api/up2"
 	"qbox.me/api/util"
 	"qbox.us/errors"
 )
@@ -38,6 +38,7 @@ type UpResuPut struct {
 	
 	Rscli *rs.Service
 	Upcli up.Service
+	Up2cli *up2.Service
 
 	Env      api.Env
 }
@@ -49,7 +50,7 @@ func (self *UpResuPut) Init(conf, env, path string) (err error) {
 		return
 	}
 	if err = config.LoadEx(&self.Env, env); err != nil {
-		err = errors.Info(err, "UpResuPut init failed")
+		err = errors.Info(err, "UpEnv init failed")
 		return
 	}
 	self.DataFile = filepath.Join(path, self.DataFile)
@@ -58,12 +59,17 @@ func (self *UpResuPut) Init(conf, env, path string) (err error) {
 	ip := self.Env.Ips["up"]
 	self.Upcli, err = up.NewService(host, ip, self.BlockBits, self.ChunkSize, self.PutRetryTimes, dt, 2, 2)
 	if err != nil {
-		err = errors.Info(err, "UpResuPut init failed")
+		err = errors.Info(err, "Upcli init failed")
 		return
 	}
 	self.Rscli, err = rs.New(self.Env.Hosts, self.Env.Ips, dt)
 	if err != nil {
-		err = errors.Info(err, "UpResuPut init failed")
+		err = errors.Info(err, "Rscli init failed")
+		return
+	}
+	self.Up2cli, err = up2.New(host, ip, self.BlockBits, self.ChunkSize, self.PutRetryTimes, dt)
+	if err != nil {
+		err = errors.Info(err, "Up2cli init failed")
 		return
 	}
 	return
@@ -156,30 +162,36 @@ func (self *UpResuPut) doTestRPut() (msg string, err error) {
 	defer f.Close()
 	fi, _ := f.Stat()
 	entryURI := self.Bucket + ":" + self.Key
-	blockcnt := self.Upcli.BlockCount(fi.Size)
-	checksums := make([]string, blockcnt)
+	blockcnt := self.Upcli.BlockCount(fi.Size())
 	progs := make([]up.BlockputProgress, blockcnt)
 	
 	chunkNotify := func(idx int, p *up.BlockputProgress) {
-		if progs[idx].Ctx == "" && rand.Intn(idx + 1) > idx/2 {
+		if rand.Intn(blockcnt)/3 == 0 {
 			p1 := *p
 			progs[idx] = p1
 		}
 	}
 	blockNotify := func(idx int, p *up.BlockputProgress) {
-		// nothing
 	}
+	t1 := self.Up2cli.NewRPtask(entryURI, "", "", "", "", f, fi.Size(), nil)
+	t1.ChunkNotify = chunkNotify
+	t1.BlockNotify = blockNotify
+
 	begin := time.Now()
-	code, err = self.Upcli.Put(f, fi.Size(), checksums, progs, blockNotify, chunkNotify)
+	for i := 0; i < blockcnt; i++ {
+		t1.PutBlock(i)
+	}
+	t1.Progress = progs
+	code, err = t1.Run(10, 10, nil, nil)
 	end := time.Now()
 	duration := end.Sub(begin)
+	msg = util.GenLog("UP    "+self.Env.Id+"_"+self.Name+"_doTestRPut", begin, end, duration)
+	if err != nil || code/100 != 2 {
+		err = errors.Info(errors.New("Resumable put failed"), entryURI, err, code)
+		return
+	}
+	return
 }
-
-func (self *UpResuPut) doTestRDownload() (msg string, err error) {
-
-	
-}
-
 
 func (self *UpResuPut) Test() (msg string, err error) {
 	logMsg := func(s string, e error) string {
@@ -198,12 +210,19 @@ func (self *UpResuPut) Test() (msg string, err error) {
 
 	msg1, err = self.doTestGet()
 	msg += logMsg(msg1, err)
-/*	
+
+
+	msg1, err = self.doTestRPut()
+	msg += logMsg(msg1, err)
+	msg1, err = self.doTestGet()
+	msg += logMsg(msg1, err)
+	
+	/*	
 	msg1, err = self.doTestRSGet()
 	msg += logMsg(msg1, err)
 
 	msg1, err = self.doTestDownload()
 	msg += logMsg(msg1, err)
-*/
+	*/
 	return
 }
