@@ -12,3 +12,4 @@
 
 	1. cd $QBOXROOT/qa/testcase; make install
 	2. 用例配置放在$QBOXROOT/qa/testcase/testing/conf.d目录下，包括cases配置文件，数据文件和执行环境env
+	3. 运行 qboxtestcase
