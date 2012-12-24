@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io"
+	"os"
 	"time"
 	"net/http"
 	"math/rand"
@@ -163,15 +164,15 @@ func (self *UpResuPut) doTestRPut() (msg string, err error) {
 	fi, _ := f.Stat()
 	entryURI := self.Bucket + ":" + self.Key
 	blockcnt := self.Upcli.BlockCount(fi.Size())
-	progs := make([]up.BlockputProgress, blockcnt)
+	progs := make([]up2.BlockputProgress, blockcnt)
 	
-	chunkNotify := func(idx int, p *up.BlockputProgress) {
+	chunkNotify := func(idx int, p *up2.BlockputProgress) {
 		if rand.Intn(blockcnt)/3 == 0 {
 			p1 := *p
 			progs[idx] = p1
 		}
 	}
-	blockNotify := func(idx int, p *up.BlockputProgress) {
+	blockNotify := func(idx int, p *up2.BlockputProgress) {
 	}
 	t1 := self.Up2cli.NewRPtask(entryURI, "", "", "", "", f, fi.Size(), nil)
 	t1.ChunkNotify = chunkNotify
@@ -182,7 +183,7 @@ func (self *UpResuPut) doTestRPut() (msg string, err error) {
 		t1.PutBlock(i)
 	}
 	t1.Progress = progs
-	code, err = t1.Run(10, 10, nil, nil)
+	code, err := t1.Run(10, 10, nil, nil)
 	end := time.Now()
 	duration := end.Sub(begin)
 	msg = util.GenLog("UP    "+self.Env.Id+"_"+self.Name+"_doTestRPut", begin, end, duration)
