@@ -3,11 +3,12 @@ package up
 import (
 	"crypto/sha1"
 	"encoding/hex"
-	"errors"
 	"fmt"
 	"io"
-	"net/http"
 	"os"
+	"time"
+	"net/http"
+	"math/rand"
 	"path/filepath"
 	"qbox.us/cc/config"
 	"qbox.us/log"
@@ -16,7 +17,7 @@ import (
 	"qbox.me/api/rs"
 	"qbox.me/api/up"
 	"qbox.me/api/util"
-	"time"
+	"qbox.us/errors"
 )
 
 type UpResuPut struct {
@@ -34,6 +35,9 @@ type UpResuPut struct {
 
 	Url      string
 	EntryURI string
+	
+	Rscli *rs.Service
+	Upcli up.Service
 
 	Env      api.Env
 }
@@ -41,12 +45,27 @@ type UpResuPut struct {
 func (self *UpResuPut) Init(conf, env, path string) (err error) {
 
 	if err = config.LoadEx(self, conf); err != nil {
-		return err
+		err = errors.Info(err, "UpResuPut init failed")
+		return
 	}
 	if err = config.LoadEx(&self.Env, env); err != nil {
-		return err
+		err = errors.Info(err, "UpResuPut init failed")
+		return
 	}
 	self.DataFile = filepath.Join(path, self.DataFile)
+	dt := digest.NewTransport(self.Env.AccessKey, self.Env.SecretKey, nil)
+	host := self.Env.Hosts["up"]
+	ip := self.Env.Ips["up"]
+	self.Upcli, err = up.NewService(host, ip, self.BlockBits, self.ChunkSize, self.PutRetryTimes, dt, 2, 2)
+	if err != nil {
+		err = errors.Info(err, "UpResuPut init failed")
+		return
+	}
+	self.Rscli, err = rs.New(self.Env.Hosts, self.Env.Ips, dt)
+	if err != nil {
+		err = errors.Info(err, "UpResuPut init failed")
+		return
+	}
 	return
 }
 
@@ -96,53 +115,71 @@ func (self *UpResuPut) doTestPut() (msg string, err error) {
 	return
 }
 
-func (self *UpResuPut) doTestRSGet() (msg string, err error) {
-	var ret rs.GetRet
+func (self *UpResuPut) doTestGet() (msg string, err error) {
 
-	dt := digest.NewTransport(self.Env.AccessKey, self.Env.SecretKey, nil)
-	rsservice, err := rs.New(self.Env.Hosts, self.Env.Ips, dt)
-	if err != nil {
-		return
-	}
 	begin := time.Now()
-	ret, code, err := rsservice.Get(self.EntryURI, "", "", 3600)
+	entryURI := self.Bucket + ":" + self.Key
+	ret, code, err := self.Rscli.Get(entryURI, "", "", 3600)
 	end := time.Now()
 	duration := end.Sub(begin)
-	msg = util.GenLog("UP    "+self.Env.Id+"_"+self.Name+"_doTestRsGet", begin, end, duration)
-
-	if err != nil || code != 200 {
+	msg = util.GenLog("UP    " + self.Env.Id + "_" + self.Name + "_doTestGet", begin, end, duration)
+	if err != nil || code/100 != 2 {
+		if err == nil {
+			err = errors.New("Invalid response code")
+		}
+		err = errors.Info(err, "download failed", entryURI)
 		return
 	}
-	self.Url = ret.URL
-	return
-}
-
-func (self *UpResuPut) doTestDownload() (msg string, err error) {
-	h := sha1.New()
-	begin := time.Now()
-	var req *http.Request
-	if req, err = http.NewRequest("GET", self.Url, nil); err != nil {
-		return
-	}
-	var resp *http.Response
-	if resp, err = http.DefaultClient.Do(req); err != nil {
+	resp, err := http.Get(ret.URL)
+	if err != nil {
+		err = errors.Info(err, "download failed", entryURI, ret.URL)
 		return
 	}
 	defer resp.Body.Close()
-	if _, err = io.Copy(h, resp.Body); err != nil {
-		return
-	}
-	end := time.Now()
-	duration := end.Sub(begin)
-	msg = util.GenLog("UP    "+self.Env.Id+"_"+self.Name+"_doTestDownload", begin, end, duration)
-
+	h := sha1.New()
+	io.Copy(h, resp.Body)
 	hash := hex.EncodeToString(h.Sum(nil))
 	if hash != self.DataSha1 {
-		err = errors.New("check shal failed!")
+		err = errors.Info(errors.New("Invalid data sha1"), self.DataSha1, hash)
 		return
 	}
 	return
 }
+
+func (self *UpResuPut) doTestRPut() (msg string, err error) {
+
+	f, err := os.Open(self.DataFile)
+	if err != nil {
+		err = errors.Info(err, "Resumable put failed")
+		return
+	}
+	defer f.Close()
+	fi, _ := f.Stat()
+	entryURI := self.Bucket + ":" + self.Key
+	blockcnt := self.Upcli.BlockCount(fi.Size)
+	checksums := make([]string, blockcnt)
+	progs := make([]up.BlockputProgress, blockcnt)
+	
+	chunkNotify := func(idx int, p *up.BlockputProgress) {
+		if progs[idx].Ctx == "" && rand.Intn(idx + 1) > idx/2 {
+			p1 := *p
+			progs[idx] = p1
+		}
+	}
+	blockNotify := func(idx int, p *up.BlockputProgress) {
+		// nothing
+	}
+	begin := time.Now()
+	code, err = self.Upcli.Put(f, fi.Size(), checksums, progs, blockNotify, chunkNotify)
+	end := time.Now()
+	duration := end.Sub(begin)
+}
+
+func (self *UpResuPut) doTestRDownload() (msg string, err error) {
+
+	
+}
+
 
 func (self *UpResuPut) Test() (msg string, err error) {
 	logMsg := func(s string, e error) string {
@@ -159,11 +196,14 @@ func (self *UpResuPut) Test() (msg string, err error) {
 	msg1, err = self.doTestPut()
 	msg += logMsg(msg1, err)
 
+	msg1, err = self.doTestGet()
+	msg += logMsg(msg1, err)
+/*	
 	msg1, err = self.doTestRSGet()
 	msg += logMsg(msg1, err)
 
 	msg1, err = self.doTestDownload()
 	msg += logMsg(msg1, err)
-
+*/
 	return
 }
