@@ -1,9 +1,11 @@
+ROOT = ~/.qbox.me1
 all:
 	cd base; go install -v ./...
 
 install: all
-	@echo
-
+	mkdir -p $(ROOT)
+	cd testing; go build -o bin/qboxtestcase
+	ln -s $(QBOXROOT)/qa/testcase/testing/conf.d $(ROOT)/conf.d
 
 clean:
-	@echo
+	rm $(ROOT)/conf.d -rf
