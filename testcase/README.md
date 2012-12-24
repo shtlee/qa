@@ -10,5 +10,5 @@
 
 ## 运行测试用例
 
-	1. 在当前用户的根目录下创建 .qbox.me 目录，也就是 ~/.qbox.me
-	2. 
+	1. cd $QBOXROOT/qa/testcase; make install
+	2. 用例配置放在$QBOXROOT/qa/testcase/testing/conf.d目录下，包括cases配置文件，数据文件和执行环境env
