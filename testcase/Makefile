@@ -5,7 +5,7 @@ all:
 install: all
 	mkdir -p $(ROOT)
 	cd testing; go build -o bin/qboxtestcase
-	rm $(ROOT)/conf.d
+	rm $(ROOT)/conf.d -rf
 	ln -s $(QBOXROOT)/qa/testcase/testing/conf.d $(ROOT)/conf.d
 
 clean:
