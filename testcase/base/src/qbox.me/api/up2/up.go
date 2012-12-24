@@ -32,6 +32,11 @@ func New(host, ip string, blockbits uint, chunksize, retryTimes int, t http.Roun
 	return
 }
 
+func (s *Service) BlockCount(fsize int64) int {
+	blockMask := int64((1 << s.BlockBits) - 1)
+	return int((fsize + blockMask) >> s.BlockBits)
+}
+
 
 type BlockputProgress struct {
 	Ctx string  `json:"ctx"`
