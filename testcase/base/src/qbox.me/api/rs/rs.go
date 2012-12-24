@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	. "qbox.me/api"
+	"qbox.us/rpc"
 	"qbox.me/httputil"
 )
 
@@ -50,19 +50,19 @@ func (s *Service) Put(
 	if mimeType == "" {
 		mimeType = "application/octet-stream"
 	}
-	url := s.ip["io"] + "/rs-put/" + EncodeURI(entryURI) + "/mimeType/" + EncodeURI(mimeType)
+	url := s.ip["io"] + "/rs-put/" + rpc.EncodeURI(entryURI) + "/mimeType/" + rpc.EncodeURI(mimeType)
 	code, err = s.Conn.CallWithEx(&ret, url, s.host["io"], "application/octet-stream", body, (int64)(bodyLength))
 	return
 }
 
 // 动态获取文件授权后的临时下载链接
 func (s *Service) Get(entryURI, base, attName string, expires int) (data GetRet, code int, err error) {
-	url := s.ip["rs"] + "/get/" + EncodeURI(entryURI)
+	url := s.ip["rs"] + "/get/" + rpc.EncodeURI(entryURI)
 	if base != "" {
 		url += "/base/" + base
 	}
 	if attName != "" {
-		url += "/attName/" + EncodeURI(attName)
+		url += "/attName/" + rpc.EncodeURI(attName)
 	}
 	if expires > 0 {
 		url += "/expires/" + strconv.Itoa(expires)
@@ -100,12 +100,12 @@ func (s *Service) Fetch(url, saveAs string) error {
 }
 
 func (s *Service) Stat(entryURI string) (entry Entry, code int, err error) {
-	code, err = s.Conn.CallEx(&entry, s.ip["rs"]+"/stat/"+EncodeURI(entryURI), s.host["rs"])
+	code, err = s.Conn.CallEx(&entry, s.ip["rs"]+"/stat/"+ rpc.EncodeURI(entryURI), s.host["rs"])
 	return
 }
 
 func (s *Service) Delete(entryURI string) (code int, err error) {
-	return s.Conn.CallEx(nil, s.ip["rs"]+"/delete/"+EncodeURI(entryURI), s.host["rs"])
+	return s.Conn.CallEx(nil, s.ip["rs"]+"/delete/"+rpc.EncodeURI(entryURI), s.host["rs"])
 }
 
 func (s *Service) Mkbucket(bucketname string) (code int, err error) {
@@ -117,19 +117,19 @@ func (s *Service) Drop(entryURI string) (code int, err error) {
 }
 
 func (s *Service) Move(entryURISrc, entryURIDest string) (code int, err error) {
-	return s.Conn.CallEx(nil, s.ip["rs"]+"/move/"+EncodeURI(entryURISrc)+"/"+EncodeURI(entryURIDest), s.host["rs"])
+	return s.Conn.CallEx(nil, s.ip["rs"]+"/move/"+rpc.EncodeURI(entryURISrc)+"/"+rpc.EncodeURI(entryURIDest), s.host["rs"])
 }
 
 func (s *Service) Copy(entryURISrc, entryURIDest string) (code int, err error) {
-	return s.Conn.CallEx(nil, s.ip["rs"]+"/copy/"+EncodeURI(entryURISrc)+"/"+EncodeURI(entryURIDest), s.host["rs"])
+	return s.Conn.CallEx(nil, s.ip["rs"]+"/copy/"+rpc.EncodeURI(entryURISrc)+"/"+rpc.EncodeURI(entryURIDest), s.host["rs"])
 }
 
 func (s *Service) Publish(domain, table string) (code int, err error) {
-	return s.Conn.CallEx(nil, s.ip["rs"]+"/publish/"+EncodeURI(domain)+"/from/"+table, s.host["rs"])
+	return s.Conn.CallEx(nil, s.ip["rs"]+"/publish/"+rpc.EncodeURI(domain)+"/from/"+table, s.host["rs"])
 }
 
 func (s *Service) Unpublish(domain string) (code int, err error) {
-	return s.Conn.CallEx(nil, s.ip["rs"]+"/unpublish/"+EncodeURI(domain), s.host["rs"])
+	return s.Conn.CallEx(nil, s.ip["rs"]+"/unpublish/"+rpc.EncodeURI(domain), s.host["rs"])
 }
 
 // -------------------Batcher to do -----------------------------------
@@ -151,12 +151,12 @@ func (s *Service) NewBatcher() *Batcher {
 }
 
 func (b *Batcher) operate(entryURI string, method string) {
-	b.op = append(b.op, method+EncodeURI(entryURI))
+	b.op = append(b.op, method+rpc.EncodeURI(entryURI))
 	b.ret = append(b.ret, BatchRet{})
 }
 
 func (b *Batcher) operate2(entryURISrc, entryURIDest string, method string) {
-	b.op = append(b.op, method+EncodeURI(entryURISrc)+"/"+EncodeURI(entryURIDest))
+	b.op = append(b.op, method+rpc.EncodeURI(entryURISrc)+"/"+rpc.EncodeURI(entryURIDest))
 	b.ret = append(b.ret, BatchRet{})
 }
 
@@ -204,13 +204,13 @@ func (s Service) Upload(entryURI, localFile, mimeType, customMeta, callbackParam
 func (s Service) UploadEx(upToken string, localFile, entryURI string, mimeType, customMeta, callbackParam string,
 	crc int64, rotate int) (ret PutRet, code int, err error) {
 
-	action := "/rs-put/" + httputil.EncodeURI(entryURI)
+	action := "/rs-put/" + rpc.EncodeURI(entryURI)
 	if mimeType == "" {
 		mimeType = "application/octet-stream"
 	}
-	action += "/mimeType/" + httputil.EncodeURI(mimeType)
+	action += "/mimeType/" + rpc.EncodeURI(mimeType)
 	if customMeta != "" {
-		action += "/meta/" + httputil.EncodeURI(customMeta)
+		action += "/meta/" + rpc.EncodeURI(customMeta)
 	}
 	if crc >= 0 {
 		action += "/crc32/" + strconv.FormatInt(crc, 10)
