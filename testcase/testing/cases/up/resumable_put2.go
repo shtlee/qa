@@ -14,13 +14,12 @@ import (
 	"qbox.me/auth/digest"
 	"qbox.me/api"
 	"qbox.me/api/rs"
-	"qbox.me/api/up"
 	"qbox.me/api/up2"
 	"qbox.me/api/util"
 	"qbox.us/errors"
 )
 
-type UpResuPut struct {
+type UpRPut struct {
 	Name   string `json:name`
 	Bucket string `json:"bucket"`
 
@@ -42,7 +41,7 @@ type UpResuPut struct {
 	Env      api.Env
 }
 
-func (self *UpResuPut) Init(conf, env, path string) (err error) {
+func (self *UpRPut) Init(conf, env, path string) (err error) {
 
 	if err = config.LoadEx(self, conf); err != nil {
 		err = errors.Info(err, "UpResuPut init failed")
@@ -70,7 +69,7 @@ func (self *UpResuPut) Init(conf, env, path string) (err error) {
 	return
 }
 
-func (self *UpResuPut) doTestRPut() (msg string, err error) {
+func (self *UpRPut) doTestRPut() (msg string, err error) {
 
 	f, err := os.Open(self.DataFile)
 	if err != nil {
@@ -80,7 +79,7 @@ func (self *UpResuPut) doTestRPut() (msg string, err error) {
 	defer f.Close()
 	fi, _ := f.Stat()
 	entryURI := self.Bucket + ":" + self.Key
-	blockcnt := self.Upcli.BlockCount(fi.Size())
+	blockcnt := self.Up2cli.BlockCount(fi.Size())
 	progs := make([]up2.BlockputProgress, blockcnt)
 	
 	chunkNotify := func(idx int, p *up2.BlockputProgress) {
@@ -112,7 +111,7 @@ func (self *UpResuPut) doTestRPut() (msg string, err error) {
 }
 
 
-func (self *UpResuPut) doTestGet() (msg string, err error) {
+func (self *UpRPut) doTestGet() (msg string, err error) {
 
 	begin := time.Now()
 	entryURI := self.Bucket + ":" + self.Key
@@ -144,7 +143,7 @@ func (self *UpResuPut) doTestGet() (msg string, err error) {
 }
 
 
-func (self *UpResuPut) Test() (msg string, err error) {
+func (self *UpRPut) Test() (msg string, err error) {
 	logMsg := func(s string, e error) string {
 		msg := ""
 		if err == nil {
