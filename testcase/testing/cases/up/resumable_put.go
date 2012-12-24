@@ -11,7 +11,6 @@ import (
 	"math/rand"
 	"path/filepath"
 	"qbox.us/cc/config"
-	"qbox.us/log"
 	"qbox.me/auth/digest"
 	"qbox.me/api"
 	"qbox.me/api/rs"
@@ -76,21 +75,11 @@ func (self *UpResuPut) Init(conf, env, path string) (err error) {
 	return
 }
 
-func (self *UpResuPut) NewRS() (*rs.Service, error) {
-	dt := digest.NewTransport(self.Env.AccessKey, self.Env.SecretKey, nil)
-	return rs.New(self.Env.Hosts, self.Env.Ips, dt)
-}
-
 func (self *UpResuPut) doTestPut() (msg string, err error) {
 
 	DataFile := self.DataFile
 	entry := self.Bucket + ":" + self.Key
 	self.EntryURI = entry
-	dt := digest.NewTransport(self.Env.AccessKey, self.Env.SecretKey, nil)
-	host := self.Env.Hosts["up"]
-	ip := self.Env.Ips["up"]
-	upservice, _ := up.NewService(host, ip, self.BlockBits, self.ChunkSize, self.PutRetryTimes, dt, 1, 1)
-	log.Info(upservice)
 	
 	f, err := os.Open(DataFile)
 	if err != nil {
@@ -98,7 +87,7 @@ func (self *UpResuPut) doTestPut() (msg string, err error) {
 	}
 	defer f.Close()
 	fi, err := f.Stat()
-	blockCnt := upservice.BlockCount(fi.Size())
+	blockCnt := self.Upcli.BlockCount(fi.Size())
 
 	var (
 		checksums []string           = make([]string, blockCnt)
@@ -107,12 +96,12 @@ func (self *UpResuPut) doTestPut() (msg string, err error) {
 		code      int
 	)
 	begin := time.Now()
-	code, err = upservice.Put(f, fi.Size(), checksums, progs, func(int, string) {}, func(int, *up.BlockProgress) {})
+	code, err = self.Upcli.Put(f, fi.Size(), checksums, progs, func(int, string) {}, func(int, *up.BlockProgress) {})
 
 	if err != nil || code != 200 {
 		return
 	}
-	code, err = upservice.Mkfile(&ret, "/rs-mkfile/", entry, fi.Size(), "", "", checksums)
+	code, err = self.Upcli.Mkfile(&ret, "/rs-mkfile/", entry, fi.Size(), "", "", checksums)
 	end := time.Now()
 	duration := end.Sub(begin)
 	msg = util.GenLog("UP    "+self.Env.Id+"_"+self.Name+"_doTestPut", begin, end, duration)
