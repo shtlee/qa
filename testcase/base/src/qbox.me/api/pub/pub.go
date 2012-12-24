@@ -2,9 +2,9 @@ package pub
 
 import (
 	"net/http"
-	. "qbox.me/api"
 	"qbox.me/httputil"
 	"strconv"
+	"qbox.us/rpc"
 )
 
 type Service struct {
@@ -35,13 +35,13 @@ type BucketInfo struct {
 func (s *Service) Image(bucketName string, srcSiteUrls []string, srcHost string, expires int) (code int, err error) {
 	url := s.host + "/image/" + bucketName
 	for _, srcSiteUrl := range srcSiteUrls {
-		url += "/from/" + EncodeURI(srcSiteUrl)
+		url += "/from/" + rpc.EncodeURI(srcSiteUrl)
 	}
 	if expires != 0 {
 		url += "/expires/" + strconv.Itoa(expires)
 	}
 	if srcHost != "" {
-		url += "/host/" + EncodeURI(srcHost)
+		url += "/host/" + rpc.EncodeURI(srcHost)
 	}
 	return s.Conn.CallEx(nil, url, s.ip)
 }
@@ -60,14 +60,14 @@ func (s *Service) AccessMode(bucketName string, mode int) (code int, err error) 
 }
 
 func (s *Service) Separator(bucketName string, sep string) (code int, err error) {
-	return s.Conn.CallEx(nil, s.host+"/separator/"+bucketName+"/sep/"+EncodeURI(sep), s.ip)
+	return s.Conn.CallEx(nil, s.host+"/separator/"+bucketName+"/sep/"+rpc.EncodeURI(sep), s.ip)
 }
 
 func (s *Service) Style(bucketName string, name string, style string) (code int, err error) {
-	url := s.host + "/style/" + bucketName + "/name/" + EncodeURI(name) + "/style/" + EncodeURI(style)
+	url := s.host + "/style/" + bucketName + "/name/" + rpc.EncodeURI(name) + "/style/" + rpc.EncodeURI(style)
 	return s.Conn.CallEx(nil, url, s.ip)
 }
 
 func (s *Service) Unstyle(bucketName string, name string) (code int, err error) {
-	return s.Conn.CallEx(nil, s.host+"/unstyle/"+bucketName+"/name/"+EncodeURI(name), s.ip)
+	return s.Conn.CallEx(nil, s.host+"/unstyle/"+bucketName+"/name/"+rpc.EncodeURI(name), s.ip)
 }
