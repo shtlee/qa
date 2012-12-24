@@ -43,34 +43,6 @@ type BlockputProgress struct {
 	Offset int64 `json:"offset"`
 }
 
-
-func SaveProgress(p interface{}, filename string) (err error) {
-	b, err := json.Marshal(p)
-	if err != nil {
-		return
-	}
-	if err = ioutil.WriteFile(filename, b, 0644); err != nil {
-		os.Truncate(filename,0)
-	}
-	return
-}
-
-func LoadProgress(p interface{}, filename string) (err error) {
-	if fi, err1 := os.Stat(filename); err1 != nil || fi.Size() == 0 {
-		return err1
-	}
-	b, err := ioutil.ReadFile(filename)
-	if err != nil {
-		return
-	}
-	if err = json.Unmarshal(b,p); err != nil {
-		os.Truncate(filename,0)
-	}
-	return
-}
-
-
-
 type RPtask struct {
 	*Service
 	EntryURI string
