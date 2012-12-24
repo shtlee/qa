@@ -11,12 +11,12 @@ import (
 var (
 	Cases = map[string]func () Interface{
 		"example": func() Interface { return &example.Example{} },
-		"resumable_put": func() Interface { return &up.UpResuPut{} },
+		"resumable_put": func() Interface { return &up.UpPut{} },
 		"fop_img_info":  func() Interface { return &fop.FopImgInfo{} },
 		"fop_img_view":  func() Interface { return &fop.FopImgOp{} },
 		"fop_img_mogr":  func() Interface { return &fop.FopImgOp{} },
 		//"fop_img_exif":   &fop.FopImgExif{},
-		"up_put": func() Interface { return &up.PutFile{} },
+		"up_put": func() Interface { return &up.UptokenPut{} },
 		//"old_mon":   &Old{},
 		//"rs":          &Rs{},
 		//"rs_upload":   &RsUpload{},

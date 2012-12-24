@@ -16,7 +16,7 @@ import (
 	"time"
 )
 
-type PutFile struct {
+type UptokenPut struct {
 	Name       string `json:"name"`
 	DataFile string `json:"data_file"`
 	BucketName string `json:"bucket"`
@@ -27,7 +27,7 @@ type PutFile struct {
 	Env  api.Env
 }
 
-func (self *PutFile) Init(conf, env, path string) (err error) {
+func (self *UptokenPut) Init(conf, env, path string) (err error) {
 
 	if err = config.LoadEx(self, conf); err != nil {
 		return err
@@ -42,7 +42,7 @@ func (self *PutFile) Init(conf, env, path string) (err error) {
 }
 
 // upload the file and get the download url 
-func (self *PutFile) doTestPutFile() (url, msg string, err error) {
+func (self *UptokenPut) doTestPutFile() (url, msg string, err error) {
 	entry := self.BucketName + ":" + self.Key
 	authPolicy := &uptoken.AuthPolicy{
 		Scope:    entry,
@@ -70,7 +70,7 @@ func (self *PutFile) doTestPutFile() (url, msg string, err error) {
 	return
 }
 
-func (self *PutFile) doTestCheckSha1(url string) (msg string, err error) {
+func (self *UptokenPut) doTestCheckSha1(url string) (msg string, err error) {
 	begin := time.Now()
 	netBuf, err := util.DoHttpGet(url)
 	end := time.Now()
@@ -92,7 +92,7 @@ func (self *PutFile) doTestCheckSha1(url string) (msg string, err error) {
 	return
 }
 
-func (self *PutFile) Test() (msg string, err error) {
+func (self *UptokenPut) Test() (msg string, err error) {
 	msg1 := ""
 	url, msg1, err := self.doTestPutFile()
 	if err == nil {

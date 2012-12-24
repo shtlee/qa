@@ -18,7 +18,7 @@ import (
 	"qbox.us/errors"
 )
 
-type UpResuPut struct {
+type UpPut struct {
 	Name   string `json:name`
 	Bucket string `json:"bucket"`
 
@@ -40,7 +40,7 @@ type UpResuPut struct {
 	Env      api.Env
 }
 
-func (self *UpResuPut) Init(conf, env, path string) (err error) {
+func (self *UpPut) Init(conf, env, path string) (err error) {
 
 	if err = config.LoadEx(self, conf); err != nil {
 		err = errors.Info(err, "UpResuPut init failed")
@@ -67,7 +67,7 @@ func (self *UpResuPut) Init(conf, env, path string) (err error) {
 	return
 }
 
-func (self *UpResuPut) doTestPut() (msg string, err error) {
+func (self *UpPut) doTestPut() (msg string, err error) {
 
 	DataFile := self.DataFile
 	entry := self.Bucket + ":" + self.Key
@@ -103,7 +103,7 @@ func (self *UpResuPut) doTestPut() (msg string, err error) {
 	return
 }
 
-func (self *UpResuPut) doTestGet() (msg string, err error) {
+func (self *UpPut) doTestGet() (msg string, err error) {
 
 	begin := time.Now()
 	entryURI := self.Bucket + ":" + self.Key
@@ -134,7 +134,7 @@ func (self *UpResuPut) doTestGet() (msg string, err error) {
 	return
 }
 
-func (self *UpResuPut) Test() (msg string, err error) {
+func (self *UpPut) Test() (msg string, err error) {
 	logMsg := func(s string, e error) string {
 		msg := ""
 		if err == nil {
