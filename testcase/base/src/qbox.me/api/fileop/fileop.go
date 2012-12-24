@@ -3,7 +3,7 @@ package fileop
 import (
 	"io"
 	"net/http"
-	. "qbox.me/api"
+	"qbox.us/rpc"
 	"qbox.me/httputil"
 )
 
@@ -122,7 +122,7 @@ func (s *Fileop) Mogr(ret interface{}, url string, params map[string]string) (co
 		url1 += "/auto-orient"
 	}
 	if entryURI, ok := params["SaveAs"]; ok && entryURI != "" {
-		url1 += "/save-as/" + EncodeURI(entryURI)
+		url1 += "/save-as/" + rpc.EncodeURI(entryURI)
 	}
 
 	code, err = s.Conn.Call(ret, url1)

@@ -2,14 +2,11 @@ package up2
 
 import (
 	"io"
-	"os"
-	"io/ioutil"
 	"errors"
 	"sync"
 	"strings"
 	"strconv"
 	"net/http"
-	"encoding/json"
 	"hash/crc32"
 	"qbox.us/rpc"
 	"qbox.me/httputil"
