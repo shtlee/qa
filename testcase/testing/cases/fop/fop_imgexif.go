@@ -91,7 +91,6 @@ func (self *FopImgExif) Init(conf, env, path string) (err error) {
 	}
 	self.UploadImg = filepath.Join(path, self.UploadImg)
 	//self.SrcExif = filepath.Join(path, self.SrcExif)
-	fmt.Println("*********************************************> ", self.SrcExif)
 	return
 }
 
