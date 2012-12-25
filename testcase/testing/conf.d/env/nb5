@@ -6,14 +6,14 @@
         "up"    :      "up.qbox.me",
         "rs"    :      "rs.qbox.me",
         "io"    :      "iovip.qbox.me",
-	"pub" :  "pub.qbox.me"
+	"pu" :  "pu.qbox.me"
     },
 
     "ips"       : {
         "up" :      "http://118.26.231.133",
         "rs" :      "http://118.26.231.133:82",
         "io" :      "http://118.26.231.133",
-	"pub":     "http://115.238.155.240"
+	"pu":     "http://pu.qbox.me"
     },
 
     "access_key"    :      "4_odedBxmrAHiu4Y0Qp0HPG0NANCf6VAsAjWL_kO",

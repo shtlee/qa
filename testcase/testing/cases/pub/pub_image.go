@@ -32,7 +32,7 @@ func (p *PubImage) Init(conf, env, path string) (err error) {
 		return
 	}
 	dt := da.NewTransport(p.Env.AccessKey, p.Env.SecretKey, nil)
-	p.Pubcli, err = pub.New(p.Env.Hosts["pub"], p.Env.Ips["pub"], dt)
+	p.Pubcli, err = pub.New(p.Env.Hosts["pu"], p.Env.Ips["pu"], dt)
 	if err != nil {
 		err = errors.Info(err, "pub_image init failed")
 		return
@@ -52,7 +52,6 @@ func (p *PubImage) doTestImage() (msg string, err error) {
 		return
 	}
 	url := "http://" + p.Env.Hosts["io"] + "/" + p.SrcKey
-	println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&", url)
 	_, err = httputil.DownloadEx(url, p.FromDomain)
 	if err != nil {
 		err = errors.Info(err, "doTestImage failed", url)
