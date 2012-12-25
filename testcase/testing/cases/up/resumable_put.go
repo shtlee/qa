@@ -89,7 +89,7 @@ func (self *UpResuPut) doTestPut() (msg string, err error) {
 	code, err = upservice.Mkfile(&ret, "/rs-mkfile/", entry, fi.Size(), "", "", checksums)
 	end := time.Now()
 	duration := end.Sub(begin)
-	msg = util.GenLog("UP    "+self.Env.Id+"_"+self.Name+"_doTestPut", begin, end, duration)
+	msg = util.GenLogEx("UP    "+self.Env.Id+"_"+self.Name+"_doTestPut", begin, end, duration)
 	if err != nil || code != 200 {
 		return
 	}
@@ -108,7 +108,7 @@ func (self *UpResuPut) doTestRSGet() (msg string, err error) {
 	ret, code, err := rsservice.Get(self.EntryURI, "", "", 3600)
 	end := time.Now()
 	duration := end.Sub(begin)
-	msg = util.GenLog("UP    "+self.Env.Id+"_"+self.Name+"_doTestRsGet", begin, end, duration)
+	msg = util.GenLogEx("UP    "+self.Env.Id+"_"+self.Name+"_doTestRsGet", begin, end, duration)
 
 	if err != nil || code != 200 {
 		return
@@ -134,7 +134,7 @@ func (self *UpResuPut) doTestDownload() (msg string, err error) {
 	}
 	end := time.Now()
 	duration := end.Sub(begin)
-	msg = util.GenLog("UP    "+self.Env.Id+"_"+self.Name+"_doTestDownload", begin, end, duration)
+	msg = util.GenLogEx("UP    "+self.Env.Id+"_"+self.Name+"_doTestDownload", begin, end, duration)
 
 	hash := hex.EncodeToString(h.Sum(nil))
 	if hash != self.DataSha1 {
