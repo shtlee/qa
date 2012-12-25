@@ -3,6 +3,8 @@ package pub
 import (
 	"io"
 	"os"
+	"time"
+	"fmt"
 	"regexp"
 	"strconv"
 	"crypto/sha1"
@@ -16,6 +18,7 @@ import (
 	"qbox.me/api"
 	"qbox.me/api/rs"
 	"qbox.me/api/pub"
+	"qbox.me/api/util"
 )
 
 type Pub struct {
@@ -76,7 +79,11 @@ func (p *Pub) doTestUpload() (msg string, err error) {
 	}
 	defer f.Close()
 	fi, _ := f.Stat()
+	begin := time.Now()
 	_, _, err = p.rsCli.Put(entryName, p.dataType, f, fi.Size())
+	end := time.Now()
+	duration := end.Sub(begin)
+	msg = util.GenLogEx("Pb    "+p.Env.Id+"_"+p.Name+"_doTestUpload", begin, end, duration)
 	if err != nil {
 		err = errors.Info(err, "upload failed:", entryName)
 	}
@@ -90,10 +97,14 @@ func (p *Pub) doTestPublish() (msg string, err error) {
 	} else {
 		p.Domain = strconv.FormatInt(rand.Int63(), 10) + "." + p.Domain
 	}
+	begin := time.Now()
 	if _, err = p.rsCli.Publish(p.Domain, p.Bucket); err != nil {
 		err = errors.Info(err, "Publish failed: ", p.Bucket, p.Domain)
 		return
 	}
+	end := time.Now() 
+	duration := end.Sub(begin)
+	msg = util.GenLogEx("Pb    "+p.Env.Id+"_"+p.Name+"_doTestPublish", begin, end, duration)
 	return
 }
 
@@ -115,7 +126,11 @@ func (p *Pub) doTestDownload() (msg string, err error) {
 	if !p.isNormalDomain {
 		req.Host = p.Domain
 	}
+	begin := time.Now()
 	resp, err := http.DefaultClient.Do(req)
+	end := time.Now()
+	duration := end.Sub(begin)
+	msg = util.GenLogEx("Fp    "+p.Env.Id+"_"+p.Name+"_doTestDownload", begin, end, duration)
 	if err != nil {
 		err = errors.Info(err, "Download failed:", url)
 		return
@@ -147,11 +162,14 @@ func (p *Pub) doTestDownload() (msg string, err error) {
 
 
 func (p *Pub) doTestUnpublish() (msg string, err error) {
-
+	begin := time.Now()
 	if _, err = p.rsCli.Unpublish(p.Domain); err != nil {
 		err = errors.Info(err, "unpublish domain failed", p.Domain)
 		return
 	}
+	end := time.Now()
+	duration := end.Sub(begin)
+	msg = util.GenLogEx("Pb    "+p.Env.Id+"_"+p.Name+"_doTestUnpublish", begin, end, duration)
 	return
 }
 
@@ -159,27 +177,36 @@ func (p *Pub) doTestUnpublish() (msg string, err error) {
 func (p *Pub) Test() (msg string, err error) {
 
 	log1, err := p.doTestUpload()
-	msg += log1
+	
 	if err != nil {
+		msg += fmt.Sprintln(log1, err)
 		return
+	} else {
+		msg += fmt.Sprintln(log1, " ok")
 	}
 
 	log1, err = p.doTestPublish()
-	msg += log1
 	if err != nil {
+		msg += fmt.Sprintln(log1, err)
 		return
+	} else {
+		msg += fmt.Sprintln(log1, " ok")
 	}
 
 	log1, err = p.doTestDownload()
-	msg += log1
 	if err != nil {
+		msg += fmt.Sprintln(log1, err)
 		return
+	} else {
+		msg += fmt.Sprintln(log1, " ok")
 	}
 
 	log1, err = p.doTestUnpublish()
-	msg += log1
 	if err != nil {
+		msg += fmt.Sprintln(log1, err)
 		return
+	} else {
+		msg += fmt.Sprintln(log1, " ok")
 	}
 	return
 }
