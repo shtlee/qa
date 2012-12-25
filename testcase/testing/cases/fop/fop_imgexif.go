@@ -136,7 +136,7 @@ func (self *FopImgExif) doTestImgExif(downloadUrl string) (msg string, err error
 	}
 	end := time.Now()
 	duration := end.Sub(begin)
-	msg = util.GenLog("Fp    "+self.Env.Id+"_"+self.Name+"_doTestImgOp", begin, end, duration)
+	msg = util.GenLogEx("Fp    "+self.Env.Id+"_"+self.Name+"_doTestImgOp", begin, end, duration)
 	if err != nil {
 		return
 	}

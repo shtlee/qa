@@ -90,7 +90,7 @@ func (self *FopImgInfo) doTestGetImgInfo(downloadUrl string) (msg string, err er
 	netBuf, err := util.DoHttpGet(url)
 	end := time.Now()
 	duration := end.Sub(begin)
-	msg = util.GenLog("Fp    "+self.Env.Id+"_"+self.Name+"_doTestGetImgInfo", begin, end, duration)
+	msg = util.GenLogEx("Fp    "+self.Env.Id+"_"+self.Name+"_doTestGetImgInfo", begin, end, duration)
 	if err != nil {
 		return
 	}
