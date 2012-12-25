@@ -65,7 +65,36 @@ func DoHttpGet(url string) (b *bytes.Buffer, err error) {
 	io.Copy(b, resp.Body)
 	return
 }
+// use specified ip and host
+func DoHttpGetEx(host, ip, url string) (b *bytes.Buffer, err error) {
+	var (
+		req  *http.Request
+		resp *http.Response
+	)
+	lastIdx := strings.LastIndex(ip, ":")
+	if lastIdx == strings.Index(ip, ":") {
+		lastIdx = len(ip)
+	}
 
+	ip2 := string([]byte(ip[7:lastIdx]))
+	url2 := replaceHostWithIP(url, host, ip2)
+	if req, err = http.NewRequest("GET", url2, nil); err != nil {
+		return
+	}
+	req.Host = host 
+	if resp, err = http.DefaultClient.Do(req); err != nil {
+		return
+	}
+
+	defer resp.Body.Close()
+	b = new(bytes.Buffer)
+	io.Copy(b, resp.Body)
+	return
+}
+
+func replaceHostWithIP(url, host, ip string) string {
+	return strings.Replace(url, host, ip, 1)
+}
 
 func approachTo(a1 uint32, a2 uint32) bool {
 	var max, d int
