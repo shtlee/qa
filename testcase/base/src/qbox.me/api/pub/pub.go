@@ -33,7 +33,7 @@ type BucketInfo struct {
 }
 
 func (s *Service) Image(bucketName string, srcSiteUrls []string, srcHost string, expires int) (code int, err error) {
-	url := s.host + "/image/" + bucketName
+	url := s.ip + "/image/" + bucketName
 	for _, srcSiteUrl := range srcSiteUrls {
 		url += "/from/" + rpc.EncodeURI(srcSiteUrl)
 	}
@@ -43,31 +43,31 @@ func (s *Service) Image(bucketName string, srcSiteUrls []string, srcHost string,
 	if srcHost != "" {
 		url += "/host/" + rpc.EncodeURI(srcHost)
 	}
-	return s.Conn.CallEx(nil, url, s.ip)
+	return s.Conn.CallEx(nil, url, s.host)
 }
 
 func (s *Service) Unimage(bucketName string) (code int, err error) {
-	return s.Conn.CallEx(nil, s.host+"/unimage/"+bucketName, s.ip)
+	return s.Conn.CallEx(nil, s.ip+"/unimage/"+bucketName, s.host)
 }
 
 func (s *Service) Info(bucketName string) (info BucketInfo, code int, err error) {
-	code, err = s.Conn.CallEx(&info, s.host+"/info/"+bucketName, s.ip)
+	code, err = s.Conn.CallEx(&info, s.ip+"/info/"+bucketName, s.host)
 	return
 }
 
 func (s *Service) AccessMode(bucketName string, mode int) (code int, err error) {
-	return s.Conn.CallEx(nil, s.host+"/accessMode/"+bucketName+"/mode/"+strconv.Itoa(mode), s.ip)
+	return s.Conn.CallEx(nil, s.ip+"/accessMode/"+bucketName+"/mode/"+strconv.Itoa(mode), s.host)
 }
 
 func (s *Service) Separator(bucketName string, sep string) (code int, err error) {
-	return s.Conn.CallEx(nil, s.host+"/separator/"+bucketName+"/sep/"+rpc.EncodeURI(sep), s.ip)
+	return s.Conn.CallEx(nil, s.ip+"/separator/"+bucketName+"/sep/"+rpc.EncodeURI(sep), s.host)
 }
 
 func (s *Service) Style(bucketName string, name string, style string) (code int, err error) {
-	url := s.host + "/style/" + bucketName + "/name/" + rpc.EncodeURI(name) + "/style/" + rpc.EncodeURI(style)
-	return s.Conn.CallEx(nil, url, s.ip)
+	url := s.ip + "/style/" + bucketName + "/name/" + rpc.EncodeURI(name) + "/style/" + rpc.EncodeURI(style)
+	return s.Conn.CallEx(nil, url, s.host)
 }
 
 func (s *Service) Unstyle(bucketName string, name string) (code int, err error) {
-	return s.Conn.CallEx(nil, s.host+"/unstyle/"+bucketName+"/name/"+rpc.EncodeURI(name), s.ip)
+	return s.Conn.CallEx(nil, s.ip+"/unstyle/"+bucketName+"/name/"+rpc.EncodeURI(name), s.host)
 }
