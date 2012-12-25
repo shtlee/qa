@@ -52,7 +52,7 @@ func (p *Pub) Init(conf, env, path string) (err error) {
 		err = errors.Info(err, "Pub init failed")
 		return
 	}
-	p.pubCli, err = pub.New(p.Env.Hosts["pub"], p.Env.Ips["pub"], dt)
+	p.pubCli, err = pub.New(p.Env.Hosts["pu"], p.Env.Ips["pu"], dt)
 	if err != nil {
 		err = errors.Info(err, "Pub init failed")
 		return
