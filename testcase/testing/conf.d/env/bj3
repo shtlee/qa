@@ -5,13 +5,15 @@
     "hosts"     : {
         "up"    :      "up.qbox.me",
         "rs"    :      "rs.qbox.me",
-        "io"    :      "iovip.qbox.me"
+        "io"    :      "iovip.qbox.me",
+	"pub"   :      "pub.qbox.me"
     },
 
     "ips"       : {
         "up" :      "http://118.26.231.133",
         "rs" :      "http://118.26.231.133",
-        "io" :      "http://118.26.231.133"
+        "io" :      "http://118.26.231.133",
+	"pub":      "http://115.238.155.240"
     },
 
     "fopd"      :      "http://115.238.155.226:2999",
