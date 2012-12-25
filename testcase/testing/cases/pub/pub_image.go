@@ -1,6 +1,7 @@
 package pub
 
 import (
+	"net/http"
 	"qbox.us/cc/config"
 	"qbox.us/errors"
 	"qbox.me/api"	
@@ -11,8 +12,9 @@ type PubImage struct {
 
 	Name string `json:"name"`
 	Bucket string `json:"bucket"`
-	Domain string `json:"image_domain"`
-	FileURL string `json:"source_file_url"`
+	FromDomain string `json:"from_domain"`
+	SrcHost string `json:"source_host"`
+	SrcKey string `json:"source_key"`
 
 	Pubcli *pub.Service
 	Env api.Env
@@ -39,7 +41,12 @@ func (p *Pub) Init(conf, env, path string) (err error) {
 
 func (p *Pub) doTestImage() (msg string, err error) {
 
-	code, err := p.Pubcli.Image(p.Bucket, )
+	from := []string{p.FromDomain}
+	code, err := p.Pubcli.Image(p.Bucket, from, p.SrcHost, 0)
+	if err != nil {
+		err = errors.Info(err, "doTestImage failed", p.SrcHost, p.FromDomain, code)
+		return
+	}
 }
 
 
