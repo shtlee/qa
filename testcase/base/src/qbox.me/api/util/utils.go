@@ -12,6 +12,7 @@ import (
 	_ "image/gif"
 	_ "image/jpeg"
 	_ "image/png"
+	_ "code.google.com/p/go.image/tiff"
 	"qbox.me/sstore"
 	"strconv"
 	"encoding/base64"
