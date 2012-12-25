@@ -21,6 +21,7 @@ var (
 		//"rs":          &Rs{},
 		//"rs_upload":   &RsUpload{},
 		"publish": func() Interface { return &pub.Pub{} },
+		"pub_image": func() Interface { return &pub.PubImage{} },
 		"fop_img_exif" : func() Interface {return &fop.FopImgExif{}},
 		//"shell":       &Shell{},
 		//"up":          &Up{},
