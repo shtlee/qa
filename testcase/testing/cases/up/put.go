@@ -56,7 +56,7 @@ func (self *PutFile) doTestPutFile() (url, msg string, err error) {
 	_, code, err := self.Conn.Upload(entry, self.DataFile, "", "", "", token)
 	end := time.Now()
 	duration := end.Sub(begin)
-	msg = util.GenLog("UP    "+self.Env.Id+"_"+self.Name+"_doTestPutFile", begin, end, duration)
+	msg = util.GenLogEx("UP    "+self.Env.Id+"_"+self.Name+"_doTestPutFile", begin, end, duration)
 	if err != nil || code != 200 {
 		return
 	}
@@ -75,7 +75,7 @@ func (self *PutFile) doTestCheckSha1(url string) (msg string, err error) {
 	netBuf, err := util.DoHttpGet(url)
 	end := time.Now()
 	duration := end.Sub(begin)
-	msg = util.GenLog("RS    "+self.Env.Id+"_"+self.Name+"_doTestIoDownload", begin, end, duration)
+	msg = util.GenLogEx("RS    "+self.Env.Id+"_"+self.Name+"_doTestIoDownload", begin, end, duration)
 	if err != nil {
 		return
 	}

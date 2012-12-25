@@ -12,6 +12,7 @@ import (
 	_ "image/gif"
 	_ "image/jpeg"
 	_ "image/png"
+	_ "code.google.com/p/go.image/tiff"
 	"qbox.me/sstore"
 	"strconv"
 	"encoding/base64"
@@ -31,6 +32,18 @@ func GenLog(msg string, begin, end time.Time, duration time.Duration) string {
 	dotIdx := strings.LastIndex(sDuration, ".")
 	sDuration = (string)([]byte(sDuration)[:dotIdx+2]) + "ms"
 	return fmt.Sprintf("%-45s %-15s %-15s %8s", msg, sBegin, sEnd, sDuration)
+}
+
+func GenLogEx(msg string, begin, end time.Time, duration time.Duration) string {
+	durationf := duration.Seconds() ;
+	sBegin := begin.String()
+	msIdx := 23
+	sBegin = (string)([]byte(sBegin)[10:msIdx])
+
+	sEnd := end.String()
+	sEnd = (string)([]byte(sEnd)[10:msIdx])
+
+	return fmt.Sprintf("%-45s %-15s %-15s %15.3fs", msg, sBegin, sEnd, durationf)
 }
 
 func DoHttpGet(url string) (b *bytes.Buffer, err error) {
